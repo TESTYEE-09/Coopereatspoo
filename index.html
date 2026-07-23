@@ -21,47 +21,33 @@
       <symbol id="icon-poo" viewBox="0 0 64 64"><path d="M17 49c-7 0-9-10-3-14-5-7 0-14 7-14-2-7 5-12 11-8 4-6 13-3 13 4 9-1 12 10 6 15 8 5 4 17-5 17H17Z" fill="#8a4d2b" stroke="#11110f" stroke-width="4" stroke-linejoin="round"/><circle cx="25" cy="36" r="3" fill="#11110f"/><circle cx="42" cy="36" r="3" fill="#11110f"/><path d="M25 45c4-4 10-4 14 0" fill="none" stroke="#11110f" stroke-width="3" stroke-linecap="round"/></symbol>
       <symbol id="icon-burger" viewBox="0 0 64 64"><path d="M10 28c1-13 10-20 22-20s21 7 22 20H10Z" fill="#f1ad42" stroke="#11110f" stroke-width="4"/><path d="M10 30h44v9H10z" fill="#71bd52" stroke="#11110f" stroke-width="4"/><path d="M11 40h42v8H11z" fill="#6d3828" stroke="#11110f" stroke-width="4"/><path d="M10 49h44c0 7-5 9-11 9H21c-6 0-11-2-11-9Z" fill="#f1ad42" stroke="#11110f" stroke-width="4"/><g fill="#fff2b0"><circle cx="21" cy="20" r="2"/><circle cx="31" cy="15" r="2"/><circle cx="42" cy="21" r="2"/></g></symbol>
       <symbol id="icon-pizza" viewBox="0 0 64 64"><path d="M10 8c18 0 34 8 44 22L24 56 10 8Z" fill="#f4c34f" stroke="#11110f" stroke-width="4" stroke-linejoin="round"/><path d="M10 8c17 0 34 8 44 22" fill="none" stroke="#c96d38" stroke-width="9" stroke-linecap="round"/><circle cx="27" cy="27" r="5" fill="#d94b3f"/><circle cx="38" cy="39" r="5" fill="#d94b3f"/></symbol>
+      <symbol id="icon-candy" viewBox="0 0 64 64"><path d="m9 23 12 6v6L9 41l4-9-4-9Zm46 0-12 6v6l12 6-4-9 4-9Z" fill="#68c7e8" stroke="#11110f" stroke-width="3" stroke-linejoin="round"/><rect x="20" y="19" width="24" height="26" rx="8" fill="#f66fa7" stroke="#11110f" stroke-width="4"/><path d="m25 24 14 16M39 24 25 40" stroke="#fff" stroke-width="4" stroke-linecap="round"/></symbol>
       <symbol id="icon-apple" viewBox="0 0 64 64"><path d="M32 20c-11-8-23 0-22 15 1 16 11 24 22 19 11 5 21-3 22-19 1-15-11-23-22-15Z" fill="#e94e44" stroke="#11110f" stroke-width="4"/><path d="M32 20c-1-8 4-13 10-15" fill="none" stroke="#11110f" stroke-width="4" stroke-linecap="round"/><path d="M36 11c5-4 11-3 14 1-5 4-10 4-14-1Z" fill="#58a64b" stroke="#11110f" stroke-width="3"/></symbol>
     </defs>
   </svg>
 
   <main class="page-shell">
-    <header class="topbar">
-      <a class="brand" href="#">COOPER<span>EATSPOO</span></a>
-      <div class="topbar-actions">
-        <button id="soundButton" class="icon-button" aria-label="Toggle sound"><svg aria-hidden="true"><use href="#icon-volume"></use></svg></button>
-        <button id="howButton" class="small-button">HOW TO PLAY</button>
-      </div>
-    </header>
-
-    <section class="hero">
-      <div class="hero-copy">
-        <div class="eyebrow">OFFICIAL COOPER SIMULATOR 2026</div>
-        <h1>STOP COOPER<br><span>FROM EATING POO.</span></h1>
-        <p>Use your elite reflexes to feed Cooper normal food and keep suspicious brown objects away from him.</p>
-      </div>
-      <div class="score-card"><div><span>SCORE</span><strong id="scoreText">0000</strong></div><div><span>BEST</span><strong id="bestText">0000</strong></div></div>
-    </section>
+    <header class="topbar"><a class="brand" href="#">COOPER<span>EATSPOO</span></a><div class="topbar-actions"><button id="soundButton" class="icon-button" aria-label="Toggle sound"><svg aria-hidden="true"><use href="#icon-volume"></use></svg></button><button id="howButton" class="small-button">HOW TO PLAY</button></div></header>
+    <section class="hero"><div class="hero-copy"><div class="eyebrow">OFFICIAL COOPER SIMULATOR 2026</div><h1>STOP COOPER<br><span>FROM EATING HEALTHY.</span></h1><p>Feed Cooper burgers, pizza and candy. Keep fruit and suspicious brown objects far away from him.</p></div><div class="score-card"><div><span>SCORE</span><strong id="scoreText">0000</strong></div><div><span>BEST</span><strong id="bestText">0000</strong></div></div></section>
 
     <section class="game-wrap">
       <div class="game-frame">
         <canvas id="gameCanvas" width="1100" height="620" aria-label="Cooper Eats Poo game"></canvas>
-        <div id="startOverlay" class="overlay visible"><div class="overlay-card"><div class="face-badge"><svg aria-hidden="true"><use href="#icon-happy"></use></svg></div><p class="mini-label">IMPORTANT MISSION</p><h2>Protect Cooper’s dignity.</h2><p>Catch burgers, pizza and apples. Avoid the poo. It really should not need explaining.</p><button id="startButton" class="primary-button">START THE DISASTER</button><span class="control-hint">Move with ← →, A D, mouse or touch</span></div></div>
-        <div id="gameOverOverlay" class="overlay"><div class="overlay-card"><div class="face-badge danger"><svg aria-hidden="true"><use href="#icon-poo"></use></svg></div><p class="mini-label">MISSION FAILED</p><h2 id="gameOverTitle">Cooper ate the forbidden snack.</h2><p id="gameOverMessage">Honestly, this was preventable.</p><div class="result-row"><div><span>SCORE</span><strong id="finalScore">0</strong></div><div><span>RANK</span><strong id="rankText">Rookie</strong></div></div><button id="restartButton" class="primary-button">TRY TO SAVE HIM AGAIN</button></div></div>
+        <div id="startOverlay" class="overlay visible"><div class="overlay-card"><div class="face-badge"><svg aria-hidden="true"><use href="#icon-happy"></use></svg></div><p class="mini-label">IMPORTANT MISSION</p><h2>Protect Cooper from vitamins.</h2><p>Catch burgers, pizza and candy. Avoid apples, all other fruit, and poo.</p><button id="startButton" class="primary-button">START THE DISASTER</button><span class="control-hint">Move with ← →, A D, mouse or touch</span></div></div>
+        <div id="gameOverOverlay" class="overlay"><div class="overlay-card"><div class="face-badge danger"><svg aria-hidden="true"><use href="#icon-poo"></use></svg></div><p class="mini-label">MISSION FAILED</p><h2 id="gameOverTitle">Cooper ate something forbidden.</h2><p id="gameOverMessage">Honestly, this was preventable.</p><div class="result-row"><div><span>SCORE</span><strong id="finalScore">0</strong></div><div><span>RANK</span><strong id="rankText">Rookie</strong></div></div><button id="restartButton" class="primary-button">TRY TO SAVE HIM AGAIN</button></div></div>
       </div>
-
       <aside class="side-panel">
-        <div class="mission-card lime"><span class="card-number">01</span><h3>GOOD STUFF</h3><p class="svg-food-row"><svg><use href="#icon-burger"></use></svg><b>+10</b><svg><use href="#icon-pizza"></use></svg><b>+15</b><svg><use href="#icon-apple"></use></svg><b>+20</b></p></div>
-        <div class="mission-card brown"><span class="card-number">02</span><h3>BAD STUFF</h3><p class="svg-food-row"><svg><use href="#icon-poo"></use></svg><span>Instant embarrassment.</span></p></div>
-        <div class="mission-card white"><span class="card-number">03</span><h3>COMBO</h3><p>Catch food quickly to multiply your score.</p></div>
+        <div class="mission-card lime"><span class="card-number">01</span><h3>GOOD STUFF</h3><p class="svg-food-row"><svg><use href="#icon-burger"></use></svg><b>+10</b><svg><use href="#icon-pizza"></use></svg><b>+15</b><svg><use href="#icon-candy"></use></svg><b>+20</b></p></div>
+        <div class="mission-card brown"><span class="card-number">02</span><h3>BAD STUFF</h3><p class="svg-food-row"><svg><use href="#icon-apple"></use></svg><svg><use href="#icon-poo"></use></svg><span>Fruit or poo ends the run.</span></p></div>
+        <div class="mission-card white"><span class="card-number">03</span><h3>COMBO</h3><p>Catch junk food quickly to multiply your score.</p></div>
       </aside>
     </section>
 
-    <section class="ticker" aria-hidden="true"><div class="ticker-track"><span>NO POO ALLOWED</span><span>•</span><span>COOPER CONTROL UNIT</span><span>•</span><span>HIGHLY SCIENTIFIC</span><span>•</span><span>NO POO ALLOWED</span><span>•</span><span>COOPER CONTROL UNIT</span><span>•</span><span>HIGHLY SCIENTIFIC</span></div></section>
+    <section class="ticker" aria-hidden="true"><div class="ticker-track"><span>NO FRUIT ALLOWED</span><span>•</span><span>COOPER CONTROL UNIT</span><span>•</span><span>ZERO VITAMINS</span><span>•</span><span>NO FRUIT ALLOWED</span><span>•</span><span>COOPER CONTROL UNIT</span><span>•</span><span>ZERO VITAMINS</span></div></section>
     <footer><span>© 2026 COOPEREATSPOO.ONLINE</span><span>Made with concern for Cooper.</span></footer>
   </main>
 
-  <dialog id="howDialog"><button id="closeDialog" class="dialog-close">×</button><p class="mini-label">TRAINING MANUAL</p><h2>How to play</h2><ol><li>Move Cooper left and right.</li><li>Catch normal food to score points.</li><li>Avoid poo at all costs.</li><li>The game gets faster because Cooper cannot be trusted.</li></ol></dialog>
+  <dialog id="howDialog"><button id="closeDialog" class="dialog-close">×</button><p class="mini-label">TRAINING MANUAL</p><h2>How to play</h2><ol><li>Move Cooper left and right.</li><li>Catch burgers, pizza and candy.</li><li>Avoid apples, other fruit and poo.</li><li>The game gets faster because Cooper cannot be trusted.</li></ol></dialog>
   <script src="game.js"></script>
 </body>
 </html>
