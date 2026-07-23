@@ -1,151 +1,40 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const scoreText = document.getElementById('scoreText');
-const bestText = document.getElementById('bestText');
-const finalScore = document.getElementById('finalScore');
-const rankText = document.getElementById('rankText');
-const startOverlay = document.getElementById('startOverlay');
-const gameOverOverlay = document.getElementById('gameOverOverlay');
-const startButton = document.getElementById('startButton');
-const restartButton = document.getElementById('restartButton');
-const soundButton = document.getElementById('soundButton');
-const howButton = document.getElementById('howButton');
-const howDialog = document.getElementById('howDialog');
-const closeDialog = document.getElementById('closeDialog');
-const gameOverTitle = document.getElementById('gameOverTitle');
-const gameOverMessage = document.getElementById('gameOverMessage');
+const canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d');
+const scoreText=document.getElementById('scoreText'),bestText=document.getElementById('bestText'),finalScore=document.getElementById('finalScore'),rankText=document.getElementById('rankText');
+const startOverlay=document.getElementById('startOverlay'),gameOverOverlay=document.getElementById('gameOverOverlay'),startButton=document.getElementById('startButton'),restartButton=document.getElementById('restartButton');
+const soundButton=document.getElementById('soundButton'),howButton=document.getElementById('howButton'),howDialog=document.getElementById('howDialog'),closeDialog=document.getElementById('closeDialog');
+const gameOverTitle=document.getElementById('gameOverTitle'),gameOverMessage=document.getElementById('gameOverMessage');
+let width=1100,height=620,running=false,score=0,combo=1,elapsed=0,spawnTimer=0,lastCatch=0,soundOn=true,audioCtx,items=[],particles=[],keys={};
+let best=Number(localStorage.getItem('cooperBest')||0);
+const player={x:550,y:515,width:112,height:92,speed:620,targetX:550};
 
-let width = 1100, height = 620, running = false, score = 0, combo = 1;
-let elapsed = 0, spawnTimer = 0, lastCatch = 0, soundOn = true, audioCtx;
-let best = Number(localStorage.getItem('cooperBest') || 0);
-let items = [], particles = [], keys = {};
-const player = { x: 550, y: 515, width: 112, height: 86, speed: 620, targetX: 550 };
-const foods = [
-  { emoji: '🍔', value: 10, name: 'burger' },
-  { emoji: '🍕', value: 15, name: 'pizza' },
-  { emoji: '🍎', value: 20, name: 'apple' }
-];
-bestText.textContent = String(best).padStart(4, '0');
+const svg=(body,view='0 0 64 64')=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${view}">${body}</svg>`;
+const art={
+ burger:svg(`<path d="M10 28c1-13 10-20 22-20s21 7 22 20H10Z" fill="#f1ad42" stroke="#11110f" stroke-width="4"/><path d="M10 30h44v9H10z" fill="#71bd52" stroke="#11110f" stroke-width="4"/><path d="M11 40h42v8H11z" fill="#6d3828" stroke="#11110f" stroke-width="4"/><path d="M10 49h44c0 7-5 9-11 9H21c-6 0-11-2-11-9Z" fill="#f1ad42" stroke="#11110f" stroke-width="4"/><g fill="#fff2b0"><circle cx="21" cy="20" r="2"/><circle cx="31" cy="15" r="2"/><circle cx="42" cy="21" r="2"/></g>`),
+ pizza:svg(`<path d="M10 8c18 0 34 8 44 22L24 56 10 8Z" fill="#f4c34f" stroke="#11110f" stroke-width="4" stroke-linejoin="round"/><path d="M10 8c17 0 34 8 44 22" fill="none" stroke="#c96d38" stroke-width="9" stroke-linecap="round"/><circle cx="27" cy="27" r="5" fill="#d94b3f"/><circle cx="38" cy="39" r="5" fill="#d94b3f"/>`),
+ apple:svg(`<path d="M32 20c-11-8-23 0-22 15 1 16 11 24 22 19 11 5 21-3 22-19 1-15-11-23-22-15Z" fill="#e94e44" stroke="#11110f" stroke-width="4"/><path d="M32 20c-1-8 4-13 10-15" fill="none" stroke="#11110f" stroke-width="4" stroke-linecap="round"/><path d="M36 11c5-4 11-3 14 1-5 4-10 4-14-1Z" fill="#58a64b" stroke="#11110f" stroke-width="3"/>`),
+ poo:svg(`<path d="M17 49c-7 0-9-10-3-14-5-7 0-14 7-14-2-7 5-12 11-8 4-6 13-3 13 4 9-1 12 10 6 15 8 5 4 17-5 17H17Z" fill="#8a4d2b" stroke="#11110f" stroke-width="4" stroke-linejoin="round"/><circle cx="25" cy="36" r="3" fill="#11110f"/><circle cx="42" cy="36" r="3" fill="#11110f"/><path d="M25 45c4-4 10-4 14 0" fill="none" stroke="#11110f" stroke-width="3" stroke-linecap="round"/>`),
+ cooper:svg(`<ellipse cx="64" cy="103" rx="52" ry="10" fill="#000" opacity=".18"/><rect x="16" y="12" width="96" height="78" rx="30" fill="#ffcc68" stroke="#11110f" stroke-width="4"/><circle cx="46" cy="43" r="5" fill="#11110f"/><circle cx="82" cy="43" r="5" fill="#11110f"/><path d="M45 58c6 18 32 18 38 0" fill="#fff" stroke="#11110f" stroke-width="5" stroke-linecap="round"/><path d="M55 68h18" stroke="#ef705d" stroke-width="5" stroke-linecap="round"/><text x="64" y="117" text-anchor="middle" font-family="monospace" font-size="14" font-weight="700" fill="#11110f">COOPER</text>`,'0 0 128 124'),
+ sparkle:svg(`<path d="M32 5 38 26 59 32 38 38 32 59 26 38 5 32 26 26Z" fill="#fff" stroke="#11110f" stroke-width="3"/>`)
+};
+const sprites={};
+for(const [name,markup] of Object.entries(art)){const img=new Image();img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(markup);sprites[name]=img;}
+const foods=[{name:'burger',value:10},{name:'pizza',value:15},{name:'apple',value:20}];
+bestText.textContent=String(best).padStart(4,'0');
 
-function resizeCanvas() {
-  const rect = canvas.getBoundingClientRect();
-  const ratio = Math.min(window.devicePixelRatio || 1, 2);
-  height = Math.max(rect.height, 460);
-  width = rect.width;
-  canvas.width = Math.round(width * ratio);
-  canvas.height = Math.round(height * ratio);
-  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  player.y = height - 105;
-  player.x = Math.min(player.x, width - player.width / 2);
-  player.targetX = player.x;
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-function beep(freq, duration, type = 'sine', volume = 0.06) {
-  if (!soundOn) return;
-  try {
-    audioCtx ||= new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
-  } catch (_) {}
-}
-
-function startGame() {
-  score = 0; combo = 1; elapsed = 0; spawnTimer = 0; items = []; particles = [];
-  player.x = width / 2; player.targetX = player.x;
-  scoreText.textContent = '0000';
-  running = true;
-  startOverlay.classList.remove('visible');
-  gameOverOverlay.classList.remove('visible');
-  beep(520, .08, 'square'); setTimeout(() => beep(660, .12, 'square'), 70);
-}
-
-function endGame() {
-  running = false;
-  best = Math.max(best, score);
-  localStorage.setItem('cooperBest', best);
-  bestText.textContent = String(best).padStart(4, '0');
-  finalScore.textContent = score;
-  rankText.textContent = score >= 700 ? 'Cooper Whisperer' : score >= 400 ? 'Snack Security' : score >= 200 ? 'Poo Patrol' : score >= 80 ? 'Concerned Citizen' : 'Rookie';
-  const messages = [
-    ['Cooper ate the forbidden snack.', 'Honestly, this was preventable.'],
-    ['You looked away for one second.', 'That was all Cooper needed.'],
-    ['The poo has won.', 'History will remember this moment.'],
-    ['Cooper ignored every warning.', 'A shocking but predictable result.']
-  ];
-  const [title, message] = messages[Math.floor(Math.random() * messages.length)];
-  gameOverTitle.textContent = title;
-  gameOverMessage.textContent = message;
-  gameOverOverlay.classList.add('visible');
-  beep(180, .4, 'sawtooth', .12);
-}
-
-function spawnItem() {
-  const isPoo = Math.random() < Math.min(.2 + elapsed / 180, .45);
-  const type = isPoo ? { emoji: '💩', value: 0, name: 'poo' } : foods[Math.floor(Math.random() * foods.length)];
-  const size = 46 + Math.random() * 18;
-  items.push({ x: 45 + Math.random() * (width - 90), y: -60, size, speed: 165 + elapsed * 4.2 + Math.random() * 90, rotation: Math.random() * 6, spin: (Math.random() - .5) * 3, type });
-}
-
-function burst(x, y, emoji, count) {
-  for (let i = 0; i < count; i++) particles.push({ x, y, vx: (Math.random() - .5) * 260, vy: -80 - Math.random() * 240, life: .55 + Math.random() * .55, emoji: i < 3 ? emoji : '✦', size: 13 + Math.random() * 18, rotation: Math.random() * 6, spin: (Math.random() - .5) * 8 });
-}
-
-function intersects(a, b) { return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y; }
-
-function update(dt) {
-  if (!running) return;
-  elapsed += dt; spawnTimer -= dt;
-  if (spawnTimer <= 0) { spawnItem(); spawnTimer = Math.max(.28, .74 - elapsed * .006) * (.75 + Math.random() * .5); }
-  if (keys.ArrowLeft || keys.a || keys.A) player.targetX -= player.speed * dt;
-  if (keys.ArrowRight || keys.d || keys.D) player.targetX += player.speed * dt;
-  player.targetX = Math.max(player.width / 2, Math.min(width - player.width / 2, player.targetX));
-  player.x += (player.targetX - player.x) * Math.min(1, dt * 14);
-
-  for (let i = items.length - 1; i >= 0; i--) {
-    const item = items[i]; item.y += item.speed * dt; item.rotation += item.spin * dt;
-    if (intersects({x:item.x-item.size*.36,y:item.y-item.size*.36,w:item.size*.72,h:item.size*.72},{x:player.x-player.width*.38,y:player.y-player.height*.36,w:player.width*.76,h:player.height*.7})) {
-      if (item.type.name === 'poo') { burst(item.x, item.y, '💩', 18); endGame(); return; }
-      const now = performance.now(); combo = now - lastCatch < 1100 ? Math.min(combo + 1, 5) : 1; lastCatch = now;
-      score += item.type.value * combo; scoreText.textContent = String(score).padStart(4, '0');
-      burst(item.x, item.y, item.type.emoji, 10); beep(430 + combo * 80, .09, 'square'); items.splice(i, 1); continue;
-    }
-    if (item.y > height + 80) items.splice(i, 1);
-  }
-  particles.forEach(p => { p.x += p.vx*dt; p.y += p.vy*dt; p.vy += 160*dt; p.life -= dt; p.rotation += p.spin*dt; });
-  particles = particles.filter(p => p.life > 0);
-}
-
-function roundRect(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
+function resizeCanvas(){const r=canvas.getBoundingClientRect(),ratio=Math.min(devicePixelRatio||1,2);height=Math.max(r.height,460);width=r.width;canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);ctx.setTransform(ratio,0,0,ratio,0,0);player.y=height-110;player.x=Math.min(player.x,width-player.width/2);player.targetX=player.x;}
+addEventListener('resize',resizeCanvas);resizeCanvas();
+function beep(freq,duration,type='sine',volume=.06){if(!soundOn)return;try{audioCtx||=new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(volume,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);o.connect(g).connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+duration);}catch{}}
+function startGame(){score=0;combo=1;elapsed=0;spawnTimer=0;items=[];particles=[];player.x=width/2;player.targetX=player.x;scoreText.textContent='0000';running=true;startOverlay.classList.remove('visible');gameOverOverlay.classList.remove('visible');beep(520,.08,'square');setTimeout(()=>beep(660,.12,'square'),70);}
+function endGame(){running=false;best=Math.max(best,score);localStorage.setItem('cooperBest',best);bestText.textContent=String(best).padStart(4,'0');finalScore.textContent=score;rankText.textContent=score>=700?'Cooper Whisperer':score>=400?'Snack Security':score>=200?'Poo Patrol':score>=80?'Concerned Citizen':'Rookie';const m=[['Cooper ate the forbidden snack.','Honestly, this was preventable.'],['You looked away for one second.','That was all Cooper needed.'],['The poo has won.','History will remember this moment.'],['Cooper ignored every warning.','A shocking but predictable result.']][Math.floor(Math.random()*4)];gameOverTitle.textContent=m[0];gameOverMessage.textContent=m[1];gameOverOverlay.classList.add('visible');beep(180,.4,'sawtooth',.12);}
+function spawnItem(){const bad=Math.random()<Math.min(.2+elapsed/180,.45),type=bad?{name:'poo',value:0}:foods[Math.floor(Math.random()*foods.length)],size=48+Math.random()*18;items.push({x:45+Math.random()*(width-90),y:-60,size,speed:165+elapsed*4.2+Math.random()*90,rotation:Math.random()*6,spin:(Math.random()-.5)*3,type});}
+function burst(x,y,name,count){for(let i=0;i<count;i++)particles.push({x,y,vx:(Math.random()-.5)*260,vy:-80-Math.random()*240,life:.55+Math.random()*.55,name:i<3?name:'sparkle',size:13+Math.random()*18,rotation:Math.random()*6,spin:(Math.random()-.5)*8});}
+function intersects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
+function update(dt){if(!running)return;elapsed+=dt;spawnTimer-=dt;if(spawnTimer<=0){spawnItem();spawnTimer=Math.max(.28,.74-elapsed*.006)*(.75+Math.random()*.5);}if(keys.ArrowLeft||keys.a||keys.A)player.targetX-=player.speed*dt;if(keys.ArrowRight||keys.d||keys.D)player.targetX+=player.speed*dt;player.targetX=Math.max(player.width/2,Math.min(width-player.width/2,player.targetX));player.x+=(player.targetX-player.x)*Math.min(1,dt*14);for(let i=items.length-1;i>=0;i--){const item=items[i];item.y+=item.speed*dt;item.rotation+=item.spin*dt;if(intersects({x:item.x-item.size*.36,y:item.y-item.size*.36,w:item.size*.72,h:item.size*.72},{x:player.x-player.width*.38,y:player.y-player.height*.36,w:player.width*.76,h:player.height*.7})){if(item.type.name==='poo'){burst(item.x,item.y,'poo',18);endGame();return;}const now=performance.now();combo=now-lastCatch<1100?Math.min(combo+1,5):1;lastCatch=now;score+=item.type.value*combo;scoreText.textContent=String(score).padStart(4,'0');burst(item.x,item.y,item.type.name,10);beep(430+combo*80,.09,'square');items.splice(i,1);continue;}if(item.y>height+80)items.splice(i,1);}particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=160*dt;p.life-=dt;p.rotation+=p.spin*dt;});particles=particles.filter(p=>p.life>0);}
+function drawSprite(name,x,y,size,rotation=0,alpha=1){const img=sprites[name];if(!img.complete)return;ctx.save();ctx.globalAlpha=alpha;ctx.translate(x,y);ctx.rotate(rotation);ctx.shadowColor='rgba(0,0,0,.22)';ctx.shadowBlur=10;ctx.shadowOffsetY=7;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore();}
 function drawCloud(x,y,s){ctx.beginPath();ctx.arc(x,y,30*s,0,Math.PI*2);ctx.arc(x+34*s,y-10*s,38*s,0,Math.PI*2);ctx.arc(x+73*s,y,29*s,0,Math.PI*2);ctx.fill();}
-function draw() {
-  ctx.clearRect(0,0,width,height);
-  const sky = ctx.createLinearGradient(0,0,0,height); sky.addColorStop(0,'#aee8ff'); sky.addColorStop(.72,'#eef8df'); sky.addColorStop(.721,'#7bc65f'); sky.addColorStop(1,'#43a154'); ctx.fillStyle=sky; ctx.fillRect(0,0,width,height);
-  ctx.fillStyle='rgba(255,255,255,.75)'; for(let i=0;i<5;i++) drawCloud(((i*270+elapsed*9)%(width+300))-160,60+(i%2)*62,1+(i%3)*.15);
-  ctx.fillStyle='#2b7e44'; for(let x=-60;x<width+80;x+=75){const h=25+Math.abs((x*17)%30);ctx.beginPath();ctx.moveTo(x,height-48);ctx.lineTo(x+34,height-48-h);ctx.lineTo(x+68,height-48);ctx.fill();}
-  items.forEach(item=>{ctx.save();ctx.translate(item.x,item.y);ctx.rotate(item.rotation);ctx.font=`${item.size}px Apple Color Emoji, Segoe UI Emoji, sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='rgba(0,0,0,.22)';ctx.shadowBlur=10;ctx.shadowOffsetY=7;ctx.fillText(item.type.emoji,0,0);ctx.restore();});
-  ctx.save();ctx.translate(player.x,player.y);ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(0,43,54,12,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffcc68';ctx.strokeStyle='#11110f';ctx.lineWidth=4;roundRect(-48,-43,96,78,30);ctx.fill();ctx.stroke();ctx.fillStyle='#11110f';ctx.beginPath();ctx.arc(-18,-13,5,0,Math.PI*2);ctx.arc(18,-13,5,0,Math.PI*2);ctx.fill();ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,2,18,.15,Math.PI-.15);ctx.stroke();ctx.font='bold 14px Space Mono';ctx.textAlign='center';ctx.fillText('COOPER',0,61);ctx.restore();
-  particles.forEach(p=>{ctx.save();ctx.globalAlpha=Math.max(0,p.life);ctx.translate(p.x,p.y);ctx.rotate(p.rotation);ctx.font=`${p.size}px sans-serif`;ctx.textAlign='center';ctx.fillText(p.emoji,0,0);ctx.restore();});
-  if(running){ctx.fillStyle='#11110f';roundRect(18,18,155,38,8);ctx.fill();ctx.fillStyle='#dfff39';ctx.font='700 15px Space Mono';ctx.fillText(`COMBO x${combo}`,33,43);}
-}
-
-let lastTime = performance.now();
-function loop(now){const dt=Math.min((now-lastTime)/1000,.034);lastTime=now;update(dt);draw();requestAnimationFrame(loop);} requestAnimationFrame(loop);
-window.addEventListener('keydown',e=>{keys[e.key]=true;if(['ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();if(!running&&e.key===' ')startGame();});
-window.addEventListener('keyup',e=>keys[e.key]=false);
-function movePointer(clientX){const r=canvas.getBoundingClientRect();player.targetX=((clientX-r.left)/r.width)*width;}
-canvas.addEventListener('mousemove',e=>movePointer(e.clientX));
-canvas.addEventListener('pointerdown',e=>movePointer(e.clientX));
-canvas.addEventListener('pointermove',e=>{if(e.pointerType==='touch'||e.buttons)movePointer(e.clientX);});
-startButton.addEventListener('click',startGame); restartButton.addEventListener('click',startGame);
-soundButton.addEventListener('click',()=>{soundOn=!soundOn;soundButton.textContent=soundOn?'🔊':'🔇';});
-howButton.addEventListener('click',()=>howDialog.showModal()); closeDialog.addEventListener('click',()=>howDialog.close());
-howDialog.addEventListener('click',e=>{const r=howDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)howDialog.close();});
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
+function draw(){ctx.clearRect(0,0,width,height);const sky=ctx.createLinearGradient(0,0,0,height);sky.addColorStop(0,'#aee8ff');sky.addColorStop(.72,'#eef8df');sky.addColorStop(.721,'#7bc65f');sky.addColorStop(1,'#43a154');ctx.fillStyle=sky;ctx.fillRect(0,0,width,height);ctx.fillStyle='rgba(255,255,255,.75)';for(let i=0;i<5;i++)drawCloud(((i*270+elapsed*9)%(width+300))-160,60+(i%2)*62,1+(i%3)*.15);ctx.fillStyle='#2b7e44';for(let x=-60;x<width+80;x+=75){const h=25+Math.abs((x*17)%30);ctx.beginPath();ctx.moveTo(x,height-48);ctx.lineTo(x+34,height-48-h);ctx.lineTo(x+68,height-48);ctx.fill();}items.forEach(i=>drawSprite(i.type.name,i.x,i.y,i.size,i.rotation));if(sprites.cooper.complete)ctx.drawImage(sprites.cooper,player.x-player.width/2,player.y-player.height/2,player.width,player.height);particles.forEach(p=>drawSprite(p.name,p.x,p.y,p.size,p.rotation,Math.max(0,p.life)));if(running){ctx.fillStyle='#11110f';roundRect(18,18,155,38,8);ctx.fill();ctx.fillStyle='#dfff39';ctx.font='700 15px Space Mono';ctx.fillText(`COMBO x${combo}`,33,43);}}
+let lastTime=performance.now();function loop(now){const dt=Math.min((now-lastTime)/1000,.034);lastTime=now;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
+addEventListener('keydown',e=>{keys[e.key]=true;if(['ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();if(!running&&e.key===' ')startGame();});addEventListener('keyup',e=>keys[e.key]=false);
+function movePointer(clientX){const r=canvas.getBoundingClientRect();player.targetX=((clientX-r.left)/r.width)*width;}canvas.addEventListener('mousemove',e=>movePointer(e.clientX));canvas.addEventListener('pointerdown',e=>movePointer(e.clientX));canvas.addEventListener('pointermove',e=>{if(e.pointerType==='touch'||e.buttons)movePointer(e.clientX);});
+startButton.addEventListener('click',startGame);restartButton.addEventListener('click',startGame);soundButton.addEventListener('click',()=>{soundOn=!soundOn;soundButton.innerHTML=`<svg aria-hidden="true"><use href="#icon-${soundOn?'volume':'muted'}"></use></svg>`;});howButton.addEventListener('click',()=>howDialog.showModal());closeDialog.addEventListener('click',()=>howDialog.close());howDialog.addEventListener('click',e=>{const r=howDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)howDialog.close();});
