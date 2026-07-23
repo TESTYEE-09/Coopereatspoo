@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f4ff70" />
+  <title>Cooper Eats Poo: The Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="noise"></div>
+
+  <main class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="#">COOPER<span>EATSPOO</span></a>
+      <div class="topbar-actions">
+        <button id="soundButton" class="icon-button" aria-label="Toggle sound">🔊</button>
+        <button id="howButton" class="small-button">HOW TO PLAY</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">OFFICIAL COOPER SIMULATOR 2026</div>
+        <h1>STOP COOPER<br><span>FROM EATING POO.</span></h1>
+        <p>Use your elite reflexes to feed Cooper normal food and keep suspicious brown objects away from him.</p>
+      </div>
+      <div class="score-card">
+        <div>
+          <span>SCORE</span>
+          <strong id="scoreText">0000</strong>
+        </div>
+        <div>
+          <span>BEST</span>
+          <strong id="bestText">0000</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="game-wrap">
+      <div class="game-frame">
+        <canvas id="gameCanvas" width="1100" height="620" aria-label="Cooper Eats Poo game"></canvas>
+
+        <div id="startOverlay" class="overlay visible">
+          <div class="overlay-card">
+            <div class="face-badge">😋</div>
+            <p class="mini-label">IMPORTANT MISSION</p>
+            <h2>Protect Cooper’s dignity.</h2>
+            <p>Catch burgers, pizza and apples. Avoid the poo. It really should not need explaining.</p>
+            <button id="startButton" class="primary-button">START THE DISASTER</button>
+            <span class="control-hint">Move with ← →, A D, mouse or touch</span>
+          </div>
+        </div>
+
+        <div id="gameOverOverlay" class="overlay">
+          <div class="overlay-card">
+            <div class="face-badge danger">💩</div>
+            <p class="mini-label">MISSION FAILED</p>
+            <h2 id="gameOverTitle">Cooper ate the forbidden snack.</h2>
+            <p id="gameOverMessage">Honestly, this was preventable.</p>
+            <div class="result-row">
+              <div><span>SCORE</span><strong id="finalScore">0</strong></div>
+              <div><span>RANK</span><strong id="rankText">Rookie</strong></div>
+            </div>
+            <button id="restartButton" class="primary-button">TRY TO SAVE HIM AGAIN</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side-panel">
+        <div class="mission-card lime">
+          <span class="card-number">01</span>
+          <h3>GOOD STUFF</h3>
+          <p>🍔 +10 &nbsp; 🍕 +15 &nbsp; 🍎 +20</p>
+        </div>
+        <div class="mission-card brown">
+          <span class="card-number">02</span>
+          <h3>BAD STUFF</h3>
+          <p>💩 Instant embarrassment.</p>
+        </div>
+        <div class="mission-card white">
+          <span class="card-number">03</span>
+          <h3>COMBO</h3>
+          <p>Catch food quickly to multiply your score.</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>NO POO ALLOWED</span><span>•</span><span>COOPER CONTROL UNIT</span><span>•</span><span>HIGHLY SCIENTIFIC</span><span>•</span><span>NO POO ALLOWED</span><span>•</span><span>COOPER CONTROL UNIT</span><span>•</span><span>HIGHLY SCIENTIFIC</span>
+      </div>
+    </section>
+
+    <footer>
+      <span>© 2026 COOPEREATSPOO.ONLINE</span>
+      <span>Made with concern for Cooper.</span>
+    </footer>
+  </main>
+
+  <dialog id="howDialog">
+    <button id="closeDialog" class="dialog-close">×</button>
+    <p class="mini-label">TRAINING MANUAL</p>
+    <h2>How to play</h2>
+    <ol>
+      <li>Move Cooper left and right.</li>
+      <li>Catch normal food to score points.</li>
+      <li>Avoid poo at all costs.</li>
+      <li>The game gets faster because Cooper cannot be trusted.</li>
+    </ol>
+  </dialog>
+
+  <script src="game.js"></script>
+</body>
+</html>
