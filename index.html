@@ -10,6 +10,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <script>
+    // Balanced is now the safe default. Players can deliberately choose Quality.
+    if (!localStorage.getItem('cooperQuality')) localStorage.setItem('cooperQuality', 'MEDIUM');
+    window.setCooperQuality = (quality) => {
+      localStorage.setItem('cooperQuality', quality);
+      location.reload();
+    };
+  </script>
   <script type="importmap">
   {
     "imports": {
@@ -91,6 +99,12 @@
         <div class="title-actions">
           <button id="newGameButton" class="primary">NEW STORY</button>
           <button id="continueButton" class="secondary">CONTINUE</button>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center">
+          <span style="font-size:11px;font-weight:700;letter-spacing:.08em">GRAPHICS:</span>
+          <button class="text-button" onclick="setCooperQuality('LOW')">PERFORMANCE</button>
+          <button class="text-button" onclick="setCooperQuality('MEDIUM')">BALANCED</button>
+          <button class="text-button" onclick="setCooperQuality('HIGH')">QUALITY</button>
         </div>
         <div class="controls-strip"><span>WASD MOVE</span><span>MOUSE AIM</span><span>CLICK FIRE</span><span>SHIFT DASH</span><span>E USE BURGER</span></div>
       </div>
