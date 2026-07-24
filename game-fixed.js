@@ -35,6 +35,16 @@ patch(
   'camera state'
 );
 patch(
+  "this.pitch = clamp(this.pitch - e.movementY * .0018, -.52, .34);",
+  "this.pitch = clamp(this.pitch - e.movementY * .0018, -.35, .28);",
+  'desktop camera limits'
+);
+patch(
+  "this.pitch = clamp(this.pitch - (e.clientY - lastY) * .006, -.52, .34);",
+  "this.pitch = clamp(this.pitch - (e.clientY - lastY) * .006, -.35, .28);",
+  'touch camera limits'
+);
+patch(
   "    this.pitch = -.12;\n    this.buildLevel(index);",
   "    this.pitch = -.08;\n    this.cameraInitialized = false;\n    this.buildLevel(index);",
   'chapter camera reset'
@@ -110,8 +120,8 @@ patch(
   'horizontal enemy movement'
 );
 patch(
-  "    const tangent=this.tmpB.set(-dir.z,0,dir.x).multiplyScalar(enemy.strafe);\n",
-  "    const tangent=this.tmpB.set(-dir.z,0,dir.x).multiplyScalar(enemy.strafe);\n    const aimed=this.tmpC.copy(this.player.position);aimed.y+=1;aimed.sub(enemy.mesh.position).normalize();\n",
+  "    const tangent=this.tmpB.set(-dir.z,0,dir.x).multiplyScalar(enemy.strafe);\n    if(enemy.type==='zackbell'){",
+  "    const tangent=this.tmpB.set(-dir.z,0,dir.x).multiplyScalar(enemy.strafe);\n    const aimed=this.tmpC.copy(this.player.position);aimed.y+=1;aimed.sub(enemy.mesh.position).normalize();\n    if(enemy.type==='zackbell'){",
   'boss vertical aim'
 );
 source = source
@@ -151,7 +161,7 @@ style.textContent = `
 `;
 document.head.append(style);
 
-const patchedUrl = URL.createObjectURL(new Blob([source + '\n//# sourceURL=game-patched.js'], { type: 'text/javascript' }));
+const patchedUrl = URL.createObjectURL(new Blob([source + '\n//# sourceURL=game-runtime-patched.js'], { type: 'text/javascript' }));
 try {
   await import(patchedUrl);
 } finally {
