@@ -11,7 +11,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <script>
-    // Balanced is now the safe default. Players can deliberately choose Quality.
     if (!localStorage.getItem('cooperQuality')) localStorage.setItem('cooperQuality', 'MEDIUM');
     window.setCooperQuality = (quality) => {
       localStorage.setItem('cooperQuality', quality);
@@ -30,7 +29,6 @@
 <body>
   <div id="gameRoot" class="game-root">
     <canvas id="gameCanvas" aria-label="Cooper Eats Poo 3D story game"></canvas>
-
     <svg class="svg-defs" aria-hidden="true">
       <defs>
         <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21S3 15.4 3 8.7C3 5.6 5.3 3.5 8 3.5c1.7 0 3.2.9 4 2.2.8-1.3 2.3-2.2 4-2.2 2.7 0 5 2.1 5 5.2C21 15.4 12 21 12 21Z" fill="currentColor"/></symbol>
@@ -40,13 +38,11 @@
         <symbol id="i-candy" viewBox="0 0 64 64"><path d="m9 23 12 6v6L9 41l4-9-4-9Zm46 0-12 6v6l12 6-4-9 4-9Z" fill="#68c7e8" stroke="#111" stroke-width="3"/><rect x="20" y="19" width="24" height="26" rx="8" fill="#f66fa7" stroke="#111" stroke-width="4"/></symbol>
       </defs>
     </svg>
-
     <header class="hud-top" id="hudTop">
       <div class="brand-lockup"><span>COOPER</span><b>EATSPOO</b></div>
       <div class="chapter-chip"><small id="chapterKicker">PROLOGUE</small><strong id="chapterTitle">THE FORBIDDEN FIVE</strong></div>
       <button id="pauseButton" class="hud-button" aria-label="Pause game">ESC</button>
     </header>
-
     <section class="hud-left" id="hudLeft">
       <div class="meter-card">
         <div class="meter-label"><span><svg><use href="#i-heart"></use></svg> HEALTH</span><b id="healthText">100</b></div>
@@ -62,33 +58,27 @@
         <div data-power="candy"><svg><use href="#i-candy"></use></svg><span>CANDY RAPID</span><b id="candyTimer">-</b></div>
       </div>
     </section>
-
     <section class="objective-card" id="objectiveCard">
       <small>CURRENT MISSION</small>
       <strong id="objectiveTitle">Wake up.</strong>
       <span id="objectiveProgress">0 / 1</span>
     </section>
-
     <section class="boss-hud" id="bossHud" hidden>
       <div><small id="bossSubtitle">BOSS</small><strong id="bossName">ZACKBELL WHO STINKS</strong><span id="bossPhase">PHASE 1</span></div>
       <div class="boss-meter"><i id="bossFill"></i></div>
     </section>
-
     <div class="crosshair" id="crosshair" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
     <div class="damage-vignette" id="damageVignette"></div>
     <div class="letterbox top"></div><div class="letterbox bottom"></div>
-
     <section class="dialogue" id="dialogue" hidden>
       <div class="portrait" id="dialoguePortrait">C</div>
       <div class="dialogue-copy"><small id="dialogueSpeaker">COOPER</small><p id="dialogueText"></p><span>CLICK OR PRESS SPACE</span></div>
     </section>
-
     <section class="announcement" id="announcement" hidden>
       <small id="announcementKicker">CHAPTER ONE</small>
       <h2 id="announcementTitle">SNACKTOWN FALLS</h2>
       <p id="announcementSubtitle">The fruit has crossed the line.</p>
     </section>
-
     <section class="screen active" id="titleScreen">
       <div class="title-backdrop"></div>
       <div class="title-content">
@@ -110,28 +100,22 @@
       </div>
       <div class="title-stamp">NO FRUIT<br>NO RULES</div>
     </section>
-
     <section class="screen" id="pauseScreen">
       <div class="modal-card"><p class="eyebrow">TACTICAL BREAK</p><h2>PAUSED</h2><p>Cooper is standing perfectly still and definitely not thinking about food.</p><button id="resumeButton" class="primary">RESUME</button><button id="restartChapterButton" class="secondary">RESTART CHAPTER</button><button id="quitButton" class="text-button">BACK TO TITLE</button></div>
     </section>
-
     <section class="screen" id="gameOverScreen">
       <div class="modal-card danger-card"><p class="eyebrow">MISSION FAILED</p><h2 id="gameOverTitle">COOPER GOT VITAMINED</h2><p id="gameOverCopy">This outcome was medically responsible and therefore unacceptable.</p><button id="retryButton" class="primary">RETRY CHECKPOINT</button><button id="gameOverQuit" class="text-button">BACK TO TITLE</button></div>
     </section>
-
     <section class="screen" id="endingScreen">
       <div class="modal-card ending-card"><p class="eyebrow">STORY COMPLETE</p><h2>SNACKTOWN IS FREE</h2><p>Zackbell has been ventilated, King Poo is defeated, and Cooper has learned absolutely nothing.</p><div class="ending-score"><span>FINAL SCORE</span><strong id="finalStoryScore">000000</strong></div><button id="playAgainButton" class="primary">PLAY AGAIN</button></div>
     </section>
-
     <div class="mobile-controls" id="mobileControls">
       <div class="stick-zone" id="moveZone"><div class="stick" id="moveStick"></div></div>
       <button id="mobileFire" class="fire-button">FIRE</button>
       <button id="mobileDash" class="dash-button">DASH</button>
     </div>
-
     <div class="loading" id="loadingScreen"><div class="loading-logo">C<span>E</span>P</div><div class="loading-bar"><i id="loadingFill"></i></div><p id="loadingText">ASSEMBLING SNACKTOWN...</p></div>
   </div>
-
-  <script type="module" src="game-fixed.js?v=20260724-2"></script>
+  <script type="module" src="game-fixed.js?v=20260724-3"></script>
 </body>
 </html>
