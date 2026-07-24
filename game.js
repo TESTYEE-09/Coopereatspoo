@@ -563,7 +563,7 @@ class CooperGame {
     const cage = new THREE.Mesh(new THREE.TorusGeometry(.95, .11, 8, 24), this.materials.pink); cage.position.y = 2.2; cage.rotation.x = Math.PI / 2;
     const top = new THREE.Mesh(new THREE.ConeGeometry(1.3, 1.2, 12), this.materials.ink); top.position.y = 4.15;
     group.add(base, core, cage, top); group.position.copy(position); group.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.userData.entity = group; } });
-    group.userData.kind = 'target'; group.userData.targetType = 'reactor'; group.userData.hp = group.userData.maxHp = 150; group.userData.radius = 1.4; group.userData.index = index;
+    group.kind = 'target'; group.userData.kind = 'target'; group.userData.targetType = 'reactor'; group.userData.hp = group.userData.maxHp = 150; group.userData.radius = 1.4; group.userData.index = index;
     this.actorLayer.add(group); this.targets.push(group); this.shootables.push(group);
     const light = new THREE.PointLight(0x66d8ff, 5, 8, 2); light.position.y = 2.3; group.add(light);
   }
