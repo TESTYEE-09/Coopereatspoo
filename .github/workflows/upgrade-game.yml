@@ -39,3 +39,5 @@ jobs:
           fi
           git commit -m "Optimize 3D game and add Zackbell boss"
           git push origin main
+
+# Triggered after the workflow already existed on main.
