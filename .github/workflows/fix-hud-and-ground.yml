@@ -1,0 +1,69 @@
+name: Fix HUD and enemy ground height
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/fix-hud-and-ground.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Patch HUD and enemy placement
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          game = Path('game.js')
+          s = game.read_text()
+
+          old = "    mesh.position.copy(position);\n    const enemy={kind:'enemy',mesh,type,boss,hp:stats.hp,maxHp:stats.hp,speed:stats.speed,damage:stats.damage,radius:stats.radius,ranged:stats.ranged,attack:rand(.3,1.1),phase:1,strafe:Math.random()<.5?-1:1,dead:false,teleport:0};"
+          new = "    const groundY=type==='zackbell'?.08:type==='apple'?(boss?3.25:.76):type==='orange'?.9:type==='grape'?.7:type==='poo'?(boss?.95:.52):.7;\n    mesh.position.copy(position);mesh.position.y=position.y+groundY;\n    const enemy={kind:'enemy',mesh,type,boss,hp:stats.hp,maxHp:stats.hp,speed:stats.speed,damage:stats.damage,radius:stats.radius,ranged:stats.ranged,attack:rand(.3,1.1),phase:1,strafe:Math.random()<.5?-1:1,dead:false,teleport:0,groundY};"
+          if old not in s:
+              raise SystemExit('spawn enemy block not found')
+          s = s.replace(old, new, 1)
+
+          old = "      enemy.mesh.rotation.y=Math.atan2(dir.x,dir.z)+Math.PI;enemy.mesh.position.y=Math.sin(time+this.enemies.indexOf(enemy))*.08;"
+          new = "      enemy.mesh.rotation.y=Math.atan2(dir.x,dir.z)+Math.PI;enemy.mesh.position.y=enemy.groundY+Math.sin(time+this.enemies.indexOf(enemy))*.045;"
+          if old not in s:
+              raise SystemExit('enemy bob block not found')
+          s = s.replace(old, new, 1)
+
+          old = "enemy.mesh.position.set(rand(-13,13),0,rand(-13,13));"
+          new = "enemy.mesh.position.set(rand(-13,13),enemy.groundY,rand(-13,13));"
+          if old not in s:
+              raise SystemExit('zackbell teleport block not found')
+          s = s.replace(old, new, 1)
+
+          game.write_text(s)
+
+          css = Path('style.css')
+          c = css.read_text()
+          marker = '/* HUD VISIBILITY FIX */'
+          if marker not in c:
+              c += r'''
+
+/* HUD VISIBILITY FIX */
+.hud-top{padding:10px 14px}.brand-lockup{display:none}.chapter-chip{top:8px}.chapter-chip small{font-size:7px}.chapter-chip strong{font-size:14px}.hud-left{left:12px;bottom:12px;width:230px;gap:5px}.meter-card{padding:6px 8px;background:rgba(9,11,15,.62);backdrop-filter:blur(6px)}.meter{height:5px;margin-top:5px}.powerups{gap:4px}.powerups>div{min-height:42px;padding:4px;grid-template-columns:20px 1fr;column-gap:4px;background:rgba(9,11,15,.58);backdrop-filter:blur(5px)}.powerups svg{width:20px;height:20px}.powerups span{font-size:6px}.powerups b{font-size:9px}.objective-card{right:12px;top:48px;width:220px;padding:8px 10px;background:rgba(9,11,15,.58);backdrop-filter:blur(5px);box-shadow:0 5px 18px #0006}.objective-card strong{font-size:15px;margin:3px 0}.boss-hud{top:48px;width:min(480px,calc(100% - 260px));padding:8px 10px;background:rgba(9,11,15,.68);backdrop-filter:blur(6px)}.boss-hud strong{font-size:19px}.boss-meter{height:7px;margin-top:5px}.dialogue{bottom:10px;width:min(620px,calc(100% - 24px));grid-template-columns:52px 1fr;padding:8px;background:#090b0fd9;box-shadow:5px 6px 0 #000}.portrait{width:42px;height:42px;font-size:24px}.dialogue-copy p{font-size:clamp(14px,1.7vw,18px);margin:3px 0 5px}.announcement{place-content:start center;padding-top:12vh}.announcement h2{font-size:clamp(34px,6vw,72px);margin:10px 0}.announcement p{margin:0}.cinematic .letterbox{height:4vh}
+@media (pointer:coarse),(max-width:760px){.hud-top{padding:7px}.chapter-chip{top:6px}.chapter-chip strong{font-size:10px}.hud-left{left:8px;bottom:132px;width:170px}.meter-card{padding:5px 6px}.objective-card{right:8px;top:38px;width:158px;padding:6px 8px}.objective-card small{font-size:6px}.objective-card strong{font-size:12px}.boss-hud{top:38px;width:calc(100% - 16px)}.dialogue{bottom:138px;grid-template-columns:42px 1fr}.portrait{width:34px;height:34px;font-size:20px}.dialogue-copy p{font-size:13px}.announcement{padding-top:9vh}.announcement h2{font-size:clamp(30px,10vw,48px)}}
+'''
+          css.write_text(c)
+          PY
+      - name: Commit fixes
+        run: |
+          rm .github/workflows/fix-hud-and-ground.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game.js style.css .github/workflows/fix-hud-and-ground.yml
+          git commit -m "Fix HUD visibility and enemy ground height"
+          git push origin main
