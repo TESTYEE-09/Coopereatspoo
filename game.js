@@ -592,8 +592,9 @@ class CooperGameV2 {
     else{mesh=this.createPoo(boss);stats=boss?{hp:1150,speed:2.25,damage:22,radius:2.25,ranged:true}:{hp:55,speed:3,damage:13,radius:.8,ranged:Math.random()<.42};}
     const bound=STORY[this.chapter].bounds-4;
     if(!position){const angle=rand(0,TAU),d=rand(13,bound);position=new THREE.Vector3(Math.cos(angle)*d,0,Math.sin(angle)*d);}
-    mesh.position.copy(position);
-    const enemy={kind:'enemy',mesh,type,boss,hp:stats.hp,maxHp:stats.hp,speed:stats.speed,damage:stats.damage,radius:stats.radius,ranged:stats.ranged,attack:rand(.3,1.1),phase:1,strafe:Math.random()<.5?-1:1,dead:false,teleport:0};
+    const groundY=type==='zackbell'?.08:type==='apple'?(boss?3.25:.76):type==='orange'?.9:type==='grape'?.7:type==='poo'?(boss?.95:.52):.7;
+    mesh.position.copy(position);mesh.position.y=position.y+groundY;
+    const enemy={kind:'enemy',mesh,type,boss,hp:stats.hp,maxHp:stats.hp,speed:stats.speed,damage:stats.damage,radius:stats.radius,ranged:stats.ranged,attack:rand(.3,1.1),phase:1,strafe:Math.random()<.5?-1:1,dead:false,teleport:0,groundY};
     mesh.userData.entity=enemy;mesh.traverse((o)=>{if(o.isMesh)o.userData.entity=enemy;});
     this.actors.add(mesh);this.enemies.push(enemy);this.shootables.push(mesh);
     if(boss){
@@ -662,7 +663,7 @@ class CooperGameV2 {
       if(enemy.boss)this.updateBoss(enemy,dt,dist,dir);
       else if(enemy.ranged&&dist>5.5){const tangent=this.tmpB.set(-dir.z,0,dir.x).multiplyScalar(enemy.strafe);p.addScaledVector(tangent,enemy.speed*.55*dt);p.addScaledVector(dir,enemy.speed*.15*dt);if(enemy.attack<=0){this.enemyShoot(enemy,dir.clone(),enemy.type==='grape'?0x9c6cff:0x82502e);enemy.attack=rand(1.3,2.2);}}
       else{p.addScaledVector(dir,enemy.speed*dt);if(dist<enemy.radius+.9&&enemy.attack<=0){this.damagePlayer(enemy.damage,enemy.type==='poo'?'POO IMPACT':'VITAMIN CONTAMINATION');enemy.attack=.95;p.addScaledVector(dir,-1.1);}}
-      enemy.mesh.rotation.y=Math.atan2(dir.x,dir.z)+Math.PI;enemy.mesh.position.y=Math.sin(time+this.enemies.indexOf(enemy))*.08;
+      enemy.mesh.rotation.y=Math.atan2(dir.x,dir.z)+Math.PI;enemy.mesh.position.y=enemy.groundY+Math.sin(time+this.enemies.indexOf(enemy))*.045;
     }
   }
 
@@ -678,7 +679,7 @@ class CooperGameV2 {
     if(enemy.type==='zackbell'){
       enemy.mesh.position.addScaledVector(tangent,enemy.speed*(.55+enemy.phase*.12)*dt);enemy.mesh.position.addScaledVector(dir,(dist>10?1:-.35)*enemy.speed*.22*dt);enemy.teleport-=dt;
       enemy.mesh.traverse((o)=>{if(o.userData.stinkOrbit!==undefined){o.userData.stinkOrbit+=dt*(1+enemy.phase*.2);o.position.x=Math.cos(o.userData.stinkOrbit)*1.6;o.position.z=Math.sin(o.userData.stinkOrbit)*1.6;o.position.y=1.4+Math.sin(o.userData.stinkOrbit*2)*.45;}});
-      if(enemy.phase===3&&enemy.teleport<=0){enemy.mesh.position.set(rand(-13,13),0,rand(-13,13));enemy.teleport=3.2;this.burst(enemy.mesh.position,0x82c85c,18,1);}
+      if(enemy.phase===3&&enemy.teleport<=0){enemy.mesh.position.set(rand(-13,13),enemy.groundY,rand(-13,13));enemy.teleport=3.2;this.burst(enemy.mesh.position,0x82c85c,18,1);}
       if(enemy.attack<=0){if(enemy.phase===1)this.enemyShoot(enemy,dir.clone(),0x82c85c,1.05);else if(enemy.phase===2)for(let a=-2;a<=2;a++)this.enemyShoot(enemy,dir.clone().applyAxisAngle(Y_AXIS,a*.16),0x9fd75c,1.15);else for(let a=0;a<10;a++)this.enemyShoot(enemy,new THREE.Vector3(Math.sin(a*TAU/10),0,-Math.cos(a*TAU/10)),0x75b84d,1.35);enemy.attack=enemy.phase===3?.72:1.05;}
     }else if(enemy.type==='apple'){
       enemy.mesh.position.addScaledVector(tangent,enemy.speed*(.55+enemy.phase*.15)*dt);enemy.mesh.position.addScaledVector(dir,(dist>12?1:-1)*enemy.speed*.25*dt);
