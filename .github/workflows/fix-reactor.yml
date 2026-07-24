@@ -1,0 +1,34 @@
+name: Fix reactor targeting
+
+on:
+  push:
+    paths:
+      - .github/workflows/fix-reactor.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch reactor entity metadata
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('game.js')
+          source = path.read_text()
+          old = "group.userData.kind = 'target'; group.userData.targetType = 'reactor';"
+          new = "group.kind = 'target'; group.userData.kind = 'target'; group.userData.targetType = 'reactor';"
+          if old not in source:
+              raise SystemExit('Expected reactor metadata line not found')
+          path.write_text(source.replace(old, new, 1))
+          PY
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game.js
+          git commit -m "Fix reactor hit detection"
+          git push
